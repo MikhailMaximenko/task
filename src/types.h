@@ -2,6 +2,7 @@
 
 #include "intrusive_list.h"
 
+#include <compare>
 #include <cstddef>
 #include <ctime>
 #include <stdexcept>
@@ -14,6 +15,68 @@ struct free_table_tag {};
 
 struct util_values {
     constexpr static const char* time_format = "%H:%M";
+};
+
+class club_time {
+public:
+    int t_hour;
+    int t_min;
+private:
+    void agressive_check_correctness() const {
+        if (t_hour >= 24 || t_min >= 60 || t_hour < 0 || t_min < 0) {
+            throw std::domain_error(
+                "hour should be a positive number less than 24\
+                and min should be a positive number less then 60"
+            );
+        }
+    }
+public:
+    explicit club_time(int min) 
+        : t_hour(min / 60)
+        , t_min(min % 60)
+    {
+        agressive_check_correctness();
+    }
+
+    club_time() = default;
+    club_time(club_time const&) = default;
+    club_time(club_time &&) = default;
+    club_time & operator=(club_time const&) = default;
+    club_time & operator=(club_time &&) = default;
+    ~club_time() = default;
+
+    club_time(int hour, int min) 
+        : t_hour(hour) 
+        , t_min(min) 
+    {
+        agressive_check_correctness();
+    }
+
+    club_time& operator+=(club_time const& other) {
+        t_hour += other.t_hour + (other.t_min + t_min) / 60; 
+        t_min = (t_min + other.t_min) % 60;
+        agressive_check_correctness();
+        return *this;
+    }
+
+    club_time operator-(club_time const& other) const {
+        return club_time(to_mins() - other.to_mins());
+    }
+
+    std::strong_ordering operator<=>(club_time const& other) const {
+        if (t_hour == other.t_hour) {
+            return t_min <=> other.t_min;
+        }
+        return t_hour <=> other.t_hour;
+    }
+
+    std::size_t to_mins() const noexcept {
+        return t_hour * 60 + t_min;
+    }
+
+    std::string to_string() const noexcept {
+        return std::to_string(t_hour) + ":" + std::to_string(t_min);
+    }
 };
 
 class client : intrusive::list_element<waiting_client_tag> {
@@ -46,8 +109,8 @@ public:
 class table : intrusive::list_element<free_table_tag> {
     bool _is_busy;
     std::size_t _total_money;
-    std::tm _total_time;
-    std::tm _start_time;
+    club_time _total_time;
+    club_time _start_time;
 public:
     table() : _is_busy(false) {}
     table(table const&) = delete;
@@ -64,11 +127,11 @@ public:
         return _total_money;
     }
 
-    std::tm const* total_time() const noexcept {
-        return &_total_time;
+    club_time const& total_time() const noexcept {
+        return _total_time;
     }
 
-    void take(std::tm const& time) {
+    void take(club_time const& time) {
         if (_is_busy) {
             throw std::runtime_error("place is already busy");
         }
@@ -76,27 +139,16 @@ public:
         _start_time = time;
     }
 
-    static std::size_t count_mins(std::tm const& start, std::tm const& end) {
-        int busy_in_mins = end.tm_hour * 60 + end.tm_min - start.tm_hour * 60 - start.tm_min;
-        if (busy_in_mins < 0) {
-            throw std::runtime_error("travels to the past are not allowed here");
-        }
-        return static_cast<std::size_t>(busy_in_mins);
-    }
 
-
-    void free(std::tm const& time, std::size_t hour_cost) {
+    void free(club_time const& time, std::size_t hour_cost) {
         if (!_is_busy) {
             throw std::runtime_error("place is free");
         }
-        std::size_t busy_in_mins = count_mins(_start_time, time);
         _is_busy = false;
+        club_time time_busy = time - _start_time;
+        std::size_t busy_in_mins = time_busy.to_mins();
         _total_money = hour_cost * (busy_in_mins / 60 + (busy_in_mins % 60 ? 1 : 0));
-        _total_time.tm_hour += busy_in_mins / 60 + (_total_time.tm_min + (busy_in_mins % 60)) / 60; 
-        _total_time.tm_min += (_total_time.tm_min + busy_in_mins) % 60;
-        if (_total_time.tm_hour >= 24) {
-            throw std::runtime_error("there is only 24 hours a day");
-        } 
+        _total_time += time_busy;
     }
 };
 
