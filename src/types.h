@@ -1,5 +1,7 @@
 #pragma once
 
+#include "intrusive_list.h"
+
 #include <cstddef>
 #include <ctime>
 #include <stdexcept>
@@ -7,11 +9,14 @@
 
 namespace computer_club {
 
+struct waiting_client_tag {};
+struct free_table_tag {};
+
 struct util_values {
     constexpr static const char* time_format = "%H:%M";
 };
 
-class client {
+class client : intrusive::list_element<waiting_client_tag> {
     std::string _name;
 public:
     client() = delete;
@@ -24,9 +29,21 @@ public:
     client(std::string &&name) 
         : _name(std::move(name)) 
     {}
+
+    client(std::string const&name) 
+        : _name(name) 
+    {}
+
+    std::string const& get_name() const noexcept {
+        return _name;
+    }
+
+    auto operator<=>(client const& other) const noexcept {
+        return _name <=> other._name;
+    }
 };
 
-class table {
+class table : intrusive::list_element<free_table_tag> {
     bool _is_busy;
     std::size_t _total_money;
     std::tm _total_time;
