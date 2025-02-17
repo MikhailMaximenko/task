@@ -32,12 +32,15 @@ base_event parser::parse_event() {
     std::tm time;
     line >> std::get_time(&time, util_values::time_format);
     if (line.fail()) {
-        throw std::runtime_error("couldn't parse event time");
+        throw std::runtime_error("couldn't parse event time in line: " + str);
     }
     int id;
     line >> id;
     if (line.fail()) {
-        throw std::runtime_error("couldn't parse event id");
+        throw std::runtime_error("couldn't parse event id in line: " + str);
+    }
+    if (!base_event::is_correct_id(id)) {
+        throw std::runtime_error("unknown event met in line: " + str);
     }
     std::vector<std::string> body;
     while (!line.eof()) {
