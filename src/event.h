@@ -27,6 +27,7 @@ private:
 public:
     static bool is_correct_id(int) noexcept;
     base_event(std::tm &&, event_id, std::vector<std::string> &&);
+    base_event(std::tm const&, event_id, std::vector<std::string> const&);
     std::string to_string() const;
 
     event_id get_id() const noexcept;

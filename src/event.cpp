@@ -13,6 +13,14 @@ base_event::base_event(std::tm &&time, event_id id, std::vector<std::string> &&b
     assert(is_correct_id(static_cast<int>(id)));    
 }
 
+base_event::base_event(std::tm const&time, event_id id, std::vector<std::string> const&body)
+    : _time(time)
+    , _id(id)
+    , _body(body)
+{
+    assert(is_correct_id(static_cast<int>(id)));    
+}
+
 bool base_event::is_correct_id(int id) noexcept {
     for (auto e : possible_ids) {
         if (e == id) {
