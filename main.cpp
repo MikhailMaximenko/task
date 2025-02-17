@@ -1,10 +1,7 @@
-#include <ctime>
-#include <cstddef>
+#include "src/computer_club.h"
+
 #include <fstream>
-#include <iomanip>
 #include <iostream>
-
-
 
 
 int main(int argc, char *argv[]) {
@@ -19,17 +16,11 @@ int main(int argc, char *argv[]) {
         return -2;
     }
     
-    std::size_t comp_number;
-    std::tm open_time, close_time;
-    std::size_t hour_cost;
-    input >> comp_number;
-    input >> std::get_time(&open_time, "%H:%M");
-    input >> std::get_time(&close_time, "%H:%M");
-    input >> hour_cost;
-    if (input.fail()) {
-        std::cerr << "couldn't read initial information\n";
-        return -3;    
-    }
+    computer_club::computer_club club(input, std::cout);
+    club.init_club();
+    club.run_club();
+    club.close_club();
+    club.make_day_results();
 
     return 0;
 }
