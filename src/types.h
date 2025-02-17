@@ -31,6 +31,13 @@ private:
         }
     }
 public:
+    club_time(std::tm time) 
+        : t_hour(time.tm_hour)
+        , t_min(time.tm_min)
+    {
+        agressive_check_correctness();
+    }
+    
     explicit club_time(int min) 
         : t_hour(min / 60)
         , t_min(min % 60)
