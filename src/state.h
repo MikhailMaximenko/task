@@ -35,6 +35,13 @@ class state {
     std::optional<base_event> proccess_set(base_event const&);
     std::optional<base_event> proccess_left(base_event const&);
 public:
+    state() = default;
+    state(state const&) = delete;
+    state(state &&) = default;
+    state& operator=(state const&) = delete;
+    state& operator=(state &&) = default;
+    ~state() = default;
+
     state(std::size_t, club_time &&, club_time &&, std::size_t);
 
     club_time const* start_day() const noexcept;
