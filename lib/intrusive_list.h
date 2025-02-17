@@ -255,6 +255,14 @@ public:
     return list_base_iterator<T>(pos._current->unlink_and_link_neighbours());
   }
 
+  iterator iterator_to(T& to) noexcept {
+    return list_base_iterator<T>(&to);
+  }
+
+  const_iterator iterator_to(T const& to) noexcept {
+    return list_base_iterator<T>(&to);
+  }
+
   // O(1)
   void splice(const_iterator pos, [[maybe_unused]] list& other, const_iterator first, const_iterator last) noexcept {
     if (first == last) {
