@@ -26,7 +26,7 @@ base_event parser::parse_event() {
     std::string str;
     std::getline(_in, str);
     if (str.empty()) {
-        throw std::runtime_error("event expected, foound: EOF");
+        throw std::runtime_error("event expected, found: EOF");
     }
     std::stringstream line(str);
     std::tm time;
@@ -48,7 +48,7 @@ base_event parser::parse_event() {
         body.push_back(str);
     }
 
-    return base_event(std::move(time), static_cast<base_event::event_id>(id), std::move(body));
+    return base_event(std::move(club_time(time.tm_hour, time.tm_min)), static_cast<base_event::event_id>(id), std::move(body));
 }
 
 }

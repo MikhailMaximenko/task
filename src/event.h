@@ -1,5 +1,5 @@
 #pragma once
-
+#include "types.h"
 #include <cstddef>
 #include <ctime>
 #include <string>
@@ -21,19 +21,19 @@ public:
         ERROR_OUT = 13
     };
 private:
-    std::tm _time;
+    club_time _time;
     event_id _id; 
     std::vector<std::string> _body;
 public:
     static bool is_correct_id(int) noexcept;
-    base_event(std::tm &&, event_id, std::vector<std::string> &&);
-    base_event(std::tm const&, event_id, std::vector<std::string> const&);
+    base_event(club_time &&, event_id, std::vector<std::string> &&);
+    base_event(club_time const&, event_id, std::vector<std::string> const&);
     std::string to_string() const;
 
     event_id get_id() const noexcept;
 
     std::string const& operator[](std::size_t) const; 
-    std::tm const& get_time() const noexcept;
+    club_time const& get_time() const noexcept;
 };
 
 

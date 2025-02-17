@@ -5,7 +5,7 @@
 
 namespace computer_club {
 
-base_event::base_event(std::tm &&time, event_id id, std::vector<std::string> &&body)
+base_event::base_event(club_time &&time, event_id id, std::vector<std::string> &&body)
     : _time(std::move(time))
     , _id(id)
     , _body(std::move(body))
@@ -13,7 +13,7 @@ base_event::base_event(std::tm &&time, event_id id, std::vector<std::string> &&b
     assert(is_correct_id(static_cast<int>(id)));    
 }
 
-base_event::base_event(std::tm const&time, event_id id, std::vector<std::string> const&body)
+base_event::base_event(club_time const&time, event_id id, std::vector<std::string> const&body)
     : _time(time)
     , _id(id)
     , _body(body)
@@ -31,7 +31,7 @@ bool base_event::is_correct_id(int id) noexcept {
 }
 
 std::string base_event::to_string() const {
-    std::string res(std::asctime(&_time));
+    std::string res(_time.to_string());
     int id = static_cast<int>(_id);
     res += " " + std::to_string(id);
     for (auto const& elem : _body) {
@@ -49,7 +49,7 @@ std::string const& base_event::operator[](std::size_t ind) const {
     return _body[ind];
 }
 
-std::tm const& base_event::get_time() const noexcept {
+club_time const& base_event::get_time() const noexcept {
     return _time;
 }
 
