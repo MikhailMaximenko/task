@@ -8,7 +8,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-
 namespace computer_club {
 
 state::state(std::size_t comp_number, club_time &&start, club_time &&end, std::size_t cost) 
@@ -17,7 +16,7 @@ state::state(std::size_t comp_number, club_time &&start, club_time &&end, std::s
     , _close_time(std::move(end))
     , _hour_cost(cost)
     , _waiting_clients_count(0)
-    , _tables(_tables_number)
+    , _tables()
     , _clients()
     , _free_tables()
     , _waiting_clients()
@@ -85,14 +84,19 @@ std::optional<base_event> state::proccess_came(base_event const& event) {
     if (time < _open_time || time >= _close_time) {
         return generate_error(event.get_time(), "NotOpenYet");
     }
-    _clients[cl] = nullptr;
     _waiting_clients.push_back(cl);
+    _clients.insert(std::make_pair(std::move(cl), nullptr));
     ++_waiting_clients_count;
     return std::nullopt;
 }
 
 
 std::optional<base_event> state::proccess_awaits(base_event const& event) {
+    client cl(event[0]);
+    auto cl_iter = _clients.find(cl);
+    if (cl_iter == _clients.end()) {
+        return generate_error(event.get_time(), "ClientUnknown");
+    }
     if (!_free_tables.empty()) {
         return generate_error(event.get_time(), "ICantWaitNoLonger!");
     }
@@ -146,6 +150,9 @@ std::optional<base_event> state::proccess_left(base_event const& event) {
             --_waiting_clients_count;
             take_table(*cl_iter->second, event.get_time());
         }
+    } else {
+        --_waiting_clients_count;
+        _waiting_clients.erase(_waiting_clients.iterator_to(cl_iter->first));
     }
     _clients.erase(cl_iter);
     return std::nullopt;
@@ -157,10 +164,10 @@ std::optional<base_event> state::proccess_event(base_event const& event) {
 
     if (id == base_event::event_id::CLIENT_CAME_IN) {
         return proccess_came(event);
-    } else if (id == base_event::event_id::CLIENT_AWAITS_IN) {
-        return proccess_awaits(event);
     } else if (id == base_event::event_id::CLIENT_SET_IN) {
         return proccess_set(event);
+    } else if (id == base_event::event_id::CLIENT_AWAITS_IN) {
+        return proccess_awaits(event);
     } else if (id == base_event::event_id::CLIENT_LEFT_IN) {
         return proccess_left(event);
     } else {
