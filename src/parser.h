@@ -4,6 +4,7 @@
 #include "types.h"
 
 #include <ctime>
+#include <exception>
 #include <iomanip>
 #include <istream>
 #include <sstream>
@@ -13,6 +14,15 @@
 #include <vector>
 
 namespace computer_club {
+
+class parse_error : public std::exception {
+    std::string message;
+public:
+    parse_error(const char *);
+    parse_error(std::string const&);
+    const char * what() const throw() override;
+
+};
 
 class parser {
     std::istream &_in;

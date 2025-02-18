@@ -14,6 +14,19 @@
 
 namespace computer_club {
 
+parse_error::parse_error(const char* msg) 
+    : message(msg) 
+{}
+
+parse_error::parse_error(std::string const& msg) 
+    : message(msg) 
+{}
+
+
+const char* parse_error::what() const throw() {
+    return message.c_str();
+}
+
 parser::parser(std::istream &in) : _in(in) {}
 
 bool parser::eof() const noexcept {
@@ -24,18 +37,18 @@ base_event parser::parse_event() {
     std::string str;
     std::getline(_in, str);
     if (str.empty()) {
-        throw std::runtime_error("event expected, found: EOF");
+        throw parse_error("event expected, found: EOF");
     }
     std::stringstream line(str);
     std::tm time;
     line >> std::get_time(&time, util_values::time_format);
     if (line.fail()) {
-        throw std::runtime_error("couldn't parse event time in line: " + str);
+        throw parse_error("couldn't parse event time in line: " + str);
     }
     int id;
     line >> id;
     if (line.fail()) {
-        throw std::runtime_error("couldn't parse event id in line: " + str);
+        throw parse_error("couldn't parse event id in line: " + str);
     }
     if (!base_event::is_correct_id(id)) {
         throw std::domain_error("unknown event id met in line: " + str);

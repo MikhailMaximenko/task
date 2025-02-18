@@ -181,7 +181,7 @@ std::optional<base_event> state::proccess_event(base_event const& event) {
     } else if (id == base_event::event_id::CLIENT_LEFT_IN) {
         return proccess_left(event);
     } else {
-        throw std::runtime_error("unexpected id found while proccessing event: " + event.to_string());
+        throw std::invalid_argument("unexpected id found while proccessing event: " + event.to_string());
     }
     assert(false);
     __builtin_unreachable();

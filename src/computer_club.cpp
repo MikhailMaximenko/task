@@ -29,7 +29,7 @@ void computer_club::init_club() {
     std::string dummy;
     std::getline(_in, dummy);
     if (_in.fail()) {
-        throw std::runtime_error("couldn't read initial information");
+        throw parse_error("couldn't read initial information");
     }
     club_time open_tm(open_time);
     club_time close_tm(close_time);

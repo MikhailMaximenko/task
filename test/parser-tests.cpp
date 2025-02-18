@@ -38,8 +38,8 @@ TEST(correctness, parser) {
     ss << "10:10 1\n";
     EXPECT_THROW(p.parse_event(), std::domain_error);
     ss << "101 1 a\n";
-    EXPECT_THROW(p.parse_event(), std::runtime_error);
+    EXPECT_THROW(p.parse_event(), computer_club::parse_error);
     ss << "10:\n";
-    EXPECT_THROW(p.parse_event(), std::runtime_error);
+    EXPECT_THROW(p.parse_event(), computer_club::parse_error);
     
 }

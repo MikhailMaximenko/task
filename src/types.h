@@ -152,7 +152,7 @@ public:
 
     void take(club_time const& time) {
         if (_is_busy) {
-            throw std::runtime_error("place is already busy");
+            throw std::logic_error("place is already busy");
         }
         _is_busy = true;
         _start_time = time;
@@ -161,7 +161,7 @@ public:
 
     void free(club_time const& time, std::size_t hour_cost) {
         if (!_is_busy) {
-            throw std::runtime_error("place is free");
+            throw std::logic_error("place is free");
         }
         _is_busy = false;
         club_time time_busy = time - _start_time;
