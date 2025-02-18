@@ -9,10 +9,10 @@ add_subdirectory(lib)
 add_subdirectory(src)
 add_subdirectory(test)
 
-add_executable(computer-club-util main.cpp)
+add_executable(task main.cpp)
 set(MAIN_PROJECT_SRC_LIST computer-club-util)
 
 target_link_libraries(computer-club PUBLIC intrusive-list)
-target_link_libraries(computer-club-util PUBLIC computer-club)
+target_link_libraries(task PUBLIC computer-club)
 
-target_include_directories(computer-club-util PUBLIC "${PROJECT_BINARY_DIR}" "${PROJECT_SOURCE_DIR}/lib" "${PROJECT_SOURCE_DIR}/src")
+target_include_directories(task PUBLIC "${PROJECT_BINARY_DIR}" "${PROJECT_SOURCE_DIR}/lib" "${PROJECT_SOURCE_DIR}/src")
