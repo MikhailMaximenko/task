@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_subdirectory(lib)
 add_subdirectory(src)
+add_subdirectory(test)
 
 add_executable(computer-club-util main.cpp)
 set(MAIN_PROJECT_SRC_LIST computer-club-util)
