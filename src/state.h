@@ -34,6 +34,9 @@ class state {
     std::optional<base_event> proccess_awaits(base_event const&);
     std::optional<base_event> proccess_set(base_event const&);
     std::optional<base_event> proccess_left(base_event const&);
+
+    // returns pointer to place that was held by client
+    table * client_left(client const&, club_time const&);
 public:
     state() = default;
     state(state const&) = delete;

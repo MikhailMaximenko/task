@@ -75,6 +75,25 @@ std::optional<base_event> state::generate_error(club_time time, const char * err
 }
 
 
+table * state::client_left(client const& cl, club_time const& time) {
+    auto it = _clients.find(cl);
+    if (it == _clients.end()) {
+        return nullptr;
+    }
+    if (it->second == nullptr) {
+        _waiting_clients.erase(_waiting_clients.iterator_to(it->first));
+        --_waiting_clients_count;
+        _clients.erase(it);
+        return nullptr;
+    }
+    auto res = it->second;
+    free_table(*it->second, time);
+    _clients.erase(it);
+    
+
+    return res;
+}
+
 std::optional<base_event> state::proccess_came(base_event const& event) {
     client cl(event[0]);
     if (_clients.find(cl) != _clients.end()) {
@@ -100,13 +119,11 @@ std::optional<base_event> state::proccess_awaits(base_event const& event) {
     if (!_free_tables.empty()) {
         return generate_error(event.get_time(), "ICantWaitNoLonger!");
     }
-    if (_waiting_clients_count > _tables_number) {
+    if (_waiting_clients_count > _tables_number && cl_iter->second == nullptr) {
         std::vector<std::string> body;
         body.push_back(event[0]);
-        --_waiting_clients_count;
-        auto cl_iter = _clients.find(client(event[0]));
-        _waiting_clients.erase(_waiting_clients.iterator_to(cl_iter->first));
-        _clients.erase(cl_iter);
+        
+        client_left(client(event[0]), event.get_time());
         return std::optional<base_event>(std::in_place, std::move(event.get_time()), base_event::event_id::CLIENT_LEFT_OUT, std::move(body));
     }
     return std::nullopt;
@@ -123,12 +140,14 @@ std::optional<base_event> state::proccess_set(base_event const& event) {
     if (cl_iter == _clients.end()) {
         return generate_error(event.get_time(), "ClientUnknown");
     }
+
     if (cl_iter->second != nullptr) {
         free_table(*cl_iter->second, event.get_time());
     } else {
         _waiting_clients.erase(_waiting_clients.iterator_to(cl_iter->first));
         --_waiting_clients_count;
     }
+    
     take_table(_tables[place], event.get_time());
     cl_iter->second = &_tables[place];
     return std::nullopt;
@@ -142,29 +161,27 @@ std::optional<base_event> state::proccess_left(base_event const& event) {
         return generate_error(event.get_time(), "ClientUnknown");
     }
 
-    if (cl_iter->second != nullptr) {
-        free_table(*cl_iter->second, event.get_time());
+    auto free_table = client_left(cl_iter->first, event.get_time());
+    if (free_table != nullptr) {
+        // free_table(*cl_iter->second, event.get_time());
         if (!_waiting_clients.empty()) {
-            _clients[_waiting_clients.front()] = cl_iter->second;
+            
             std::vector<std::string> body;
             body.push_back(_waiting_clients.front().get_name());
-            body.emplace_back(std::to_string(cl_iter->second->get_id()));
+            body.emplace_back(std::to_string(free_table->get_id()));
 
+            _clients[_waiting_clients.front()] = free_table;
             _waiting_clients.pop_front();
             --_waiting_clients_count;
-            take_table(*cl_iter->second, event.get_time());
-            _clients.erase(cl_iter);
+            take_table(*free_table, event.get_time());
             
             return std::optional<base_event>(
                 std::in_place, std::move(event.get_time()), 
                 base_event::event_id::CLIENT_SET_OUT, 
                 std::move(body));
         }
-    } else {
-        --_waiting_clients_count;
-        _waiting_clients.erase(_waiting_clients.iterator_to(cl_iter->first));
-    }
-    _clients.erase(cl_iter);
+    } 
+
     return std::nullopt;
 }
 
