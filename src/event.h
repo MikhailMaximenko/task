@@ -32,6 +32,8 @@ public:
 
     event_id get_id() const noexcept;
 
+    void validate_event() const;
+    std::vector<std::string> const& get_body() const noexcept;
     std::string const& operator[](std::size_t) const; 
     club_time const& get_time() const noexcept;
 };

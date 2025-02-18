@@ -22,16 +22,16 @@ state::state(std::size_t comp_number, club_time &&start, club_time &&end, std::s
     , _waiting_clients()
 {
     for (std::size_t i = 0; i < _tables_number; ++i) {
-        _tables.emplace_back();
+        _tables.emplace_back(i + 1);
         _free_tables.push_back(_tables.back());
     }
 }
 
-club_time const* state::start_day() const noexcept {
-    return &_open_time;
+club_time const& state::start_day() const noexcept {
+    return _open_time;
 }
-club_time const* state::end_day() const noexcept {
-    return &_close_time;
+club_time const& state::end_day() const noexcept {
+    return _close_time;
 }
 
 void state::take_table(table & _table, club_time const& time) noexcept {
@@ -146,9 +146,19 @@ std::optional<base_event> state::proccess_left(base_event const& event) {
         free_table(*cl_iter->second, event.get_time());
         if (!_waiting_clients.empty()) {
             _clients[_waiting_clients.front()] = cl_iter->second;
+            std::vector<std::string> body;
+            body.push_back(_waiting_clients.front().get_name());
+            body.emplace_back(std::to_string(cl_iter->second->get_id()));
+
             _waiting_clients.pop_front();
             --_waiting_clients_count;
             take_table(*cl_iter->second, event.get_time());
+            _clients.erase(cl_iter);
+            
+            return std::optional<base_event>(
+                std::in_place, std::move(event.get_time()), 
+                base_event::event_id::CLIENT_SET_OUT, 
+                std::move(body));
         }
     } else {
         --_waiting_clients_count;

@@ -44,8 +44,8 @@ public:
 
     state(std::size_t, club_time &&, club_time &&, std::size_t);
 
-    club_time const* start_day() const noexcept;
-    club_time const* end_day() const noexcept;
+    club_time const& start_day() const noexcept;
+    club_time const& end_day() const noexcept;
 
     std::vector<base_event> close() noexcept;
     std::vector<std::pair<std::size_t, club_time>> calculate_results() const;

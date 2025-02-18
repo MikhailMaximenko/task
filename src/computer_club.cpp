@@ -39,7 +39,7 @@ void computer_club::init_club() {
 
 void computer_club::run_club() {
     
-    _out << _st.start_day()->to_string() << '\n';
+    _out << _st.start_day().to_string() << '\n';
     while (!_parser.eof()) {
         base_event event = _parser.parse_event();
         _out << event.to_string() << '\n';
@@ -55,7 +55,7 @@ void computer_club::close_club() {
     for (auto const& event: _st.close()) {
         _out << event.to_string() << '\n';
     }
-    _out << _st.end_day()->to_string() << '\n';
+    _out << _st.end_day().to_string() << '\n';
 }
 
 void computer_club::make_day_results() {

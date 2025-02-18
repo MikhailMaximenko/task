@@ -38,7 +38,7 @@ base_event parser::parse_event() {
         throw std::runtime_error("couldn't parse event id in line: " + str);
     }
     if (!base_event::is_correct_id(id)) {
-        throw std::runtime_error("unknown event met in line: " + str);
+        throw std::domain_error("unknown event id met in line: " + str);
     }
     std::vector<std::string> body;
     while (!line.eof()) {

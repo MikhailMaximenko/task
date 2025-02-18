@@ -122,11 +122,12 @@ public:
 
 class table : public intrusive::list_element<free_table_tag> {
     bool _is_busy;
+    int _id;
     std::size_t _total_money;
     club_time _total_time;
     club_time _start_time;
 public:
-    table() : _is_busy(false) {}
+    table(int id) : _is_busy(false) , _id(id) , _total_money(0) , _total_time(0) , _start_time(0) {}
     table(table const&) = delete;
     table(table &&) = default;
     table& operator=(table const&) = delete;
@@ -135,6 +136,10 @@ public:
 
     bool is_busy() const noexcept {
         return _is_busy;
+    }
+
+    int get_id() const noexcept {
+        return _id;
     }
 
     std::size_t get_money() const noexcept {
