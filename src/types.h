@@ -5,6 +5,8 @@
 #include <compare>
 #include <cstddef>
 #include <ctime>
+#include <iomanip>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 
@@ -82,17 +84,22 @@ public:
     }
 
     std::string to_string() const noexcept {
-        return std::to_string(t_hour) + ":" + std::to_string(t_min);
+        std::ostringstream res;
+        std::tm time;
+        time.tm_hour = t_hour;
+        time.tm_min = t_min;
+        res << std::put_time(&time, util_values::time_format);
+        return res.str();
     }
 };
 
-class client : intrusive::list_element<waiting_client_tag> {
+class client : public intrusive::list_element<waiting_client_tag> {
     std::string _name;
 public:
     client() = delete;
-    client(client const&) = delete;
+    client(client const&) = default;
     client(client&&) = default;
-    client& operator=(client const&) = delete;
+    client& operator=(client const&) = default;
     client& operator=(client&&) = default;
     ~client() = default;
 
@@ -113,7 +120,7 @@ public:
     }
 };
 
-class table : intrusive::list_element<free_table_tag> {
+class table : public intrusive::list_element<free_table_tag> {
     bool _is_busy;
     std::size_t _total_money;
     club_time _total_time;
@@ -154,7 +161,7 @@ public:
         _is_busy = false;
         club_time time_busy = time - _start_time;
         std::size_t busy_in_mins = time_busy.to_mins();
-        _total_money = hour_cost * (busy_in_mins / 60 + (busy_in_mins % 60 ? 1 : 0));
+        _total_money += hour_cost * (busy_in_mins / 60 + (busy_in_mins % 60 ? 1 : 0));
         _total_time += time_busy;
     }
 };
