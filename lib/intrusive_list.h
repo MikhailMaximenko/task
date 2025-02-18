@@ -256,11 +256,11 @@ public:
   }
 
   iterator iterator_to(T& to) noexcept {
-    return list_base_iterator<T>(&to);
+    return iterator(&to);
   }
 
-  const_iterator iterator_to(T const& to) noexcept {
-    return list_base_iterator<T>(&to);
+  const_iterator iterator_to(T const& to) const noexcept {
+    return const_iterator(static_cast<list_element_base const*>(&to)->next->prev);
   }
 
   // O(1)
