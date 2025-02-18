@@ -7,6 +7,7 @@
 #include <ctime>
 #include <iomanip>
 #include <stdexcept>
+#include <string>
 
 namespace computer_club {
 
@@ -25,6 +26,8 @@ void computer_club::init_club() {
     _in >> std::get_time(&open_time, "%H:%M");
     _in >> std::get_time(&close_time, "%H:%M");
     _in >> hour_cost;
+    std::string dummy;
+    std::getline(_in, dummy);
     if (_in.fail()) {
         throw std::runtime_error("couldn't read initial information");
     }
@@ -36,11 +39,10 @@ void computer_club::init_club() {
 
 void computer_club::run_club() {
     
-    parser parse(_in);
     _out << _st.start_day()->to_string() << '\n';
-    while (!parse.eof()) {
-        base_event event = parse.parse_event();
-        _out << event.to_string() << 'n';
+    while (!_parser.eof()) {
+        base_event event = _parser.parse_event();
+        _out << event.to_string() << '\n';
         auto res = _st.proccess_event(event);
         if (res) {
             _out << res->to_string() << '\n';
@@ -51,7 +53,7 @@ void computer_club::run_club() {
 
 void computer_club::close_club() {
     for (auto const& event: _st.close()) {
-        _out << event.to_string() << 'n';
+        _out << event.to_string() << '\n';
     }
     _out << _st.end_day()->to_string() << '\n';
 }
@@ -59,7 +61,7 @@ void computer_club::close_club() {
 void computer_club::make_day_results() {
     auto results = _st.calculate_results();
     for (std::size_t i = 0; i < results.size(); ++i) {
-        _out << i + 1 << ' ' << results[i].first << ' ' << results[i].second.to_string() << '\n';
+        _out << (i + 1) << " " << results[i].first << " " << results[i].second.to_string() << '\n';
     }
 }
 

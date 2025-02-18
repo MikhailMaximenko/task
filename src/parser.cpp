@@ -1,7 +1,5 @@
 #include "parser.h"
 
-#pragma once
-
 #include "event.h"
 #include "types.h"
 

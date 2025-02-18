@@ -35,7 +35,7 @@ std::string base_event::to_string() const {
     int id = static_cast<int>(_id);
     res += " " + std::to_string(id);
     for (auto const& elem : _body) {
-        res += elem;
+        res += " " + elem;
     }
     return res;
 }
